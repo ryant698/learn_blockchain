@@ -14,8 +14,6 @@ let accounts;
 beforeEach(async () => {
   accounts = await web3.eth.getAccounts();
 
-  console.log("Attempting to deploy from account", accounts[0]);
-
   lottery = await new web3.eth.Contract(interface)
     .deploy({ data: bytecode })
     .send({ gas: "1000000", from: accounts[0] });
@@ -35,7 +33,6 @@ describe("Lottery", () => {
     await lottery.methods.enter().send({
       from: accounts[0],
       gas: "10000000",
-      //   value: "100000000000000", // value in wei ~ 0.0001 eth
       value: web3.utils.toWei("0.005", "ether"),
     });
     currentPlayers.push(accounts[0]);
@@ -44,23 +41,19 @@ describe("Lottery", () => {
   });
   it("verify new participant 2: ", async () => {
     const currentPlayers = await lottery.methods.getPlayers().call();
-    console.log("Current players, ", currentPlayers);
     await lottery.methods.enter().send({
       from: accounts[1],
       gas: "10000000",
-      //   value: "100000000000000", // value in wei ~ 0.0001 eth
       value: web3.utils.toWei("0.005", "ether"),
     });
     currentPlayers.push(accounts[1]);
     await lottery.methods.enter().send({
       from: accounts[2],
       gas: "10000000",
-      //   value: "100000000000000", // value in wei ~ 0.0001 eth
       value: web3.utils.toWei("0.005", "ether"),
     });
     currentPlayers.push(accounts[2]);
     const newPlayersArray = await lottery.methods.getPlayers().call();
-    console.log("Updated list of players: ,", newPlayersArray);
     assert.deepEqual(currentPlayers, newPlayersArray);
   });
   it("require minimum of ether to enter", async () => {
@@ -90,7 +83,6 @@ describe("Lottery", () => {
     await lottery.methods.enter().send({
       from: accounts[2],
       gas: "10000000",
-      //   value: "100000000000000", // value in wei ~ 0.0001 eth
       value: web3.utils.toWei("0.005", "ether"),
     });
     await lottery.methods.pickWinner().send({
@@ -103,7 +95,6 @@ describe("Lottery", () => {
     await lottery.methods.enter().send({
       from: accounts[1],
       gas: "10000000",
-      //   value: "100000000000000", // value in wei ~ 0.0001 eth
       value: web3.utils.toWei("2", "ether"),
     });
     const initialBalance = await web3.eth.getBalance(accounts[1]);
