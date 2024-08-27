@@ -35,4 +35,8 @@ describe("Campaigns", () => {
     assert.ok(factory.options.address);
     assert.ok(campaign.options.address);
   });
+  it("verify campaign manager", async () => {
+    const campaignManager = await campaign.methods.manager().call();
+    assert.equal(accounts[0], campaignManager);
+  });
 });
