@@ -39,4 +39,33 @@ describe("Campaigns", () => {
     const campaignManager = await campaign.methods.manager().call();
     assert.equal(accounts[0], campaignManager);
   });
+  it("verify approver", async () => {
+    await campaign.methods.contribute().send({
+      from: accounts[1],
+      value: "200",
+    });
+    const isApprover = await campaign.methods.approvers(accounts[1]).call();
+    assert.equal(true, isApprover);
+  });
+  it("verify minimum contribution constrain", async () => {
+    try {
+      await campaign.methods.contribute().send({
+        from: accounts[2],
+        value: "90",
+      });
+      assert(false);
+    } catch (err) {
+      assert(err);
+    }
+  });
+  it("verify request created successfully", async () => {
+    await campaign.methods.createRequest("Buy Games", 100, accounts[1]).send({
+      from: accounts[0],
+      gas: "3000000", // Reasonable gas limit
+    });
+
+    const request = await campaign.methods.requests(0).call();
+    const requestDescription = request.description;
+    assert.equal("Buy Games", requestDescription);
+  });
 });
