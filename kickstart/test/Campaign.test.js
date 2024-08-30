@@ -20,9 +20,9 @@ beforeEach(async () => {
     .deploy({ data: compiledFactory.evm.bytecode.object })
     .send({ from: accounts[0], gas: "2000000" });
 
-  await factory.methods.createCampaigns("100").send({
+  await factory.methods.createCampaign("100").send({
     from: accounts[0],
-    gas: "1000000",
+    gas: "2000000",
   });
 
   [campaignAddress] = await factory.methods.getCampaignsList().call();
@@ -59,13 +59,13 @@ describe("Campaigns", () => {
     }
   });
   it("verify request created successfully", async () => {
-    await campaign.methods.createRequest("Buy Games", 100, accounts[1]).send({
+    await campaign.methods.createRequest("Buy", "100", accounts[1]).send({
       from: accounts[0],
-      gas: "3000000", // Reasonable gas limit
+      gas: "5000000", // Reasonable gas limit
     });
 
     const request = await campaign.methods.requests(0).call();
     const requestDescription = request.description;
-    assert.equal("Buy Games", requestDescription);
+    assert.equal("Buy", requestDescription);
   });
 });

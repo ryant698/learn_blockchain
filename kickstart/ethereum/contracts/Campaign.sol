@@ -16,38 +16,34 @@ contract Campaign {
     uint public minimumContribution;
     mapping(address => bool) public approvers;
     uint public approversCount = 0;
-    Request[] public requests;
-    address[] deployedCampaigns; // addresses of all deployed campaigns
-
-    constructor(uint minimum, address camapaignCreator) {
-        manager = camapaignCreator;
-        minimumContribution = minimum;
-    }
+    mapping(uint => Request) public requests;
+    uint public requestCount = 0;
 
     modifier restricted() {
-        require(msg.sender == manager);
+        require(msg.sender == manager, "Only manager can call this.");
         _;
     }
 
-    function contribute() public payable {
-        require(msg.value > minimumContribution);
-        approvers[msg.sender] = true;
-        approversCount++;
+    constructor(uint minimum, address campaignCreator) {
+        manager = campaignCreator;
+        minimumContribution = minimum;
     }
 
-    function getApprovers() public view restricted returns (address[] memory) {
-        // return approvers;
+    function contribute() public payable {
+        require(
+            msg.value > minimumContribution,
+            "Contribution is below the minimum."
+        );
+        approvers[msg.sender] = true;
+        approversCount++;
     }
 
     function createRequest(
         string memory description,
         uint value,
         address payable recipient
-    ) public {
-        // Create a new Request in storage
-        Request storage newRequest = requests.push();
-
-        // Populate the fields of the struct
+    ) public restricted {
+        Request storage newRequest = requests[requestCount++];
         newRequest.description = description;
         newRequest.value = value;
         newRequest.recipient = recipient;
@@ -57,16 +53,22 @@ contract Campaign {
 
     function approveRequest(uint requestID) public {
         Request storage request = requests[requestID];
-        require(approvers[msg.sender]);
-        require(!request.approvals[msg.sender]);
+        require(approvers[msg.sender], "You must be a contributor to approve.");
+        require(
+            !request.approvals[msg.sender],
+            "You have already approved this request."
+        );
         request.approvals[msg.sender] = true;
         request.approvalCount++;
     }
 
     function finalizeRequest(uint requestID) public restricted {
         Request storage request = requests[requestID];
-        require(!request.complete);
-        require(request.approvalCount > (approversCount / 2));
+        require(
+            request.approvalCount > (approversCount / 2),
+            "Not enough approvals."
+        );
+        require(!request.complete, "Request already finalized.");
         request.complete = true;
         request.recipient.transfer(request.value);
     }
@@ -75,7 +77,7 @@ contract Campaign {
 contract CampaignFactory {
     Campaign[] public deployedCampaigns;
 
-    function createCampaigns(uint minimum) public {
+    function createCampaign(uint minimum) public {
         Campaign newCampaign = new Campaign(minimum, msg.sender);
         deployedCampaigns.push(newCampaign);
     }
