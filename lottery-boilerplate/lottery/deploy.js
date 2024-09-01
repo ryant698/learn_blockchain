@@ -1,11 +1,15 @@
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 const { Web3 } = require("web3");
 const { interface, bytecode } = require("./compile");
+require("dotenv").config();
+
+const SEED = process.env.SEED;
+const SEPOLIA_URL = process.env.SEPOLIA_URL;
 
 const provider = new HDWalletProvider(
-  "quiz slender card witness good arena consider fly grunt spoil comfort fortune",
+  SEED,
   // remember to change this to your own phrase!
-  "https://sepolia.infura.io/v3/71122d970feb4a3f9bb2c5e4e4fcef58"
+  SEPOLIA_URL
   // remember to change this to your own endpoint!
 );
 const web3 = new Web3(provider);
