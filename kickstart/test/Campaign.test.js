@@ -59,7 +59,7 @@ describe("Campaigns", () => {
     }
   });
   it("verify request created successfully", async () => {
-    await campaign.methods.createRequest("Buy", "100", accounts[1]).send({
+    await campaign.methods.createRequest("Buy", "100", accounts[2]).send({
       from: accounts[0],
       gas: "5000000", // Reasonable gas limit
     });
